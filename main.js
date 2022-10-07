@@ -16,11 +16,11 @@ const client = new Client({
 
 client.commands = new Collection();
 
-const commandsPath = path.join(__dirname, 'commands');
+const commandsPath = path.resolve(__dirname, 'commands');
 const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.js'));
 
 for (const file of commandFiles) {
-    const filePath = path.join(commandsPath, file);
+    const filePath = path.resolve(commandsPath, file);
     const command = require(filePath);
 
     console.log(`[Loaded] >> Command /${command.data.name}`)
@@ -30,11 +30,11 @@ for (const file of commandFiles) {
     client.commands.set(command.data.name, command);
 }
 
-const eventsPath = path.join(__dirname, 'events');
+const eventsPath = path.resolve(__dirname, 'events');
 const eventFiles = fs.readdirSync(eventsPath).filter(file => file.endsWith('.js'));
 
 for (const file of eventFiles) {
-    const filePath = path.join(eventsPath, file);
+    const filePath = path.resolve(eventsPath, file);
     const event = require(filePath);
 
     console.log(`[Loaded] >> Event ${event.name}`)
