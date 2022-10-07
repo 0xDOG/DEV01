@@ -27,5 +27,6 @@ module.exports = {
         const attachment = interaction.options.getAttachment('attachment');
 
         console.log({string, boolean, user, member, channel, role, integer, number, mentionable, attachment});
+        await interaction.reply("[OK]")
     },
 };
