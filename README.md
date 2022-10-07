@@ -1,8 +1,15 @@
 # DB01
-Discord Bot v01
 
-Add a config.json file with:
+Before use:
+- Add a config.json file with a bot "token", the bots "clientId" and the dev servers "guildId"
 
-Token > Discord Token //
-clientId > User ID of Bot //
-guildId > Server ID of Dev Server
+Commands:
+- Ping (Pong!)
+- Test (Sends user input to console)
+
+Desired Commands:
+- Kick
+- Ban
+- Info
+- Stats
+- Masskick
