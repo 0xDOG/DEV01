@@ -1,7 +1,7 @@
 const fs = require('node:fs');
 const path = require('node:path');
 
-const { Client, Collection, GatewayIntentBits } = require('discord.js');
+const { Client, Collection, GatewayIntentBits, EmbedBuilder } = require('discord.js');
 const { token } = require('./config.json');
 
 // Create Client Instance
@@ -58,7 +58,15 @@ client.on('interactionCreate', async interaction => {
         await command.execute(interaction);
     } catch (error) {
         console.error(error);
-        await interaction.reply({ content: 'There was an error while executing this command.', ephemeral: true })
+        await interaction.reply({
+            embeds: [
+                new EmbedBuilder()
+                    .setColor('Red')
+                    .setTitle(`${error.name} - ${error.message}`)
+                    .setDescription('There was an error while executing this command.')
+            ],
+            ephemeral: true
+        })
     }
 });
 
