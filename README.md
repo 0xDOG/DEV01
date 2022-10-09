@@ -9,7 +9,9 @@ Commands:
 - Info (Basic User Info)
 
 Dev Commands:
-- Test (Can be anything.+
+- Test (Can be anything)
+
+Inactive Commands:
 - Kick
 - Button (Button Test)
 - Prune (Purge 1-99 Messages)
