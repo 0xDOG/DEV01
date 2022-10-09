@@ -50,7 +50,10 @@ module.exports = {
         let kickTotal = 0
         let failedKicks = 0
 
-        const delta = 1
+        let delta = 1
+        if (filteredIds.length >= 8) {
+            delta = 8
+        }
         let i = 0
         function kickAll() {
             let embedLines = []
