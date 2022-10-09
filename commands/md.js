@@ -47,7 +47,10 @@ module.exports = {
             }
         }
 
-        const delta = 8
+        let kickTotal = 0
+        let failedKicks = 0
+
+        const delta = 1
         let i = 0
         function kickAll() {
             let embedLines = []
@@ -55,23 +58,33 @@ module.exports = {
                 for (let j = 0; j < delta; j++) {
                     const member = await interaction.guild.members.fetch(filteredIds[i + j])
                     if (member) {
-                        embedLines.push(`:white_check_mark: - \`${member.user.id}\` - \`${member.user.tag}\``);
-                        console.log(`Member Found: ${member.user.tag}`);
+                        await member.kick(`Patreon Cleanup ${i+j}/${filteredIds.length}`)
+                            .then(() => {
+                                embedLines.push(`:white_check_mark: - \`${member.user.id}\` - \`${member.user.tag}\``);
+                                console.log(`Member Kicked: ${member.user.tag}`);
+                                kickTotal++
+                            })
+                            .catch((err) => {
+                                embedLines.push(`:no_entry_sign: - \`${member.user.id}\` - \`${member.user.tag}\``);
+                                console.error(`Member Not Kicked: ${member.user.tag} - ${err}`);
+                                failedKicks++
+                            });
                     } else {
-                        embedLines.push(`:no_entry_sign: - \`${member.user.id}\` - \`${member.user.tag}\``);
-                        console.log(`Member Found: ${member.user.tag}`);
+                        embedLines.push(`:bangbang:  - \`${filteredIds[i+j]}\``);
+                        console.log(`Member Not Kicked: ${filteredIds[i+j]}`);
+                        failedKicks++
                     }
                 }
                 interaction.channel.send({
                     embeds: [new EmbedBuilder()
                         .setColor('Green')
-                        .setTitle(`Found users:`)
+                        .setTitle(`Kicked Users: ${kickTotal}/${filteredIds.length} | Failed Kicks: ${failedKicks}`)
                         .setDescription(embedLines.join('\n'))
                         .setTimestamp(),
                     ]
                 })
                 i += delta
-                if (i < filteredIds.length - delta) {
+                if (i <= filteredIds.length - delta) {
                     kickAll();
                 }
             }, 3000)

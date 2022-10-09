@@ -22,7 +22,7 @@ module.exports = {
         if (!reason) { reason = 'None given' }
 
         if (member) {
-            await member.kick(reason);
+            await member.kick(reason)
             return interaction.reply({
                 embeds: [new EmbedBuilder()
                     .setColor('Green')
