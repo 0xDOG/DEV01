@@ -160,7 +160,7 @@ module.exports = {
             })
         })
 
-        await interaction.reply({
+        return await interaction.reply({
             embeds: [new EmbedBuilder()
                 .setColor('Red')
                 .setTitle('Patreon Cleanup')
