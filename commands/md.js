@@ -1,4 +1,6 @@
-const { SlashCommandBuilder, EmbedBuilder} = require('discord.js');
+// noinspection DuplicatedCode
+
+const { SlashCommandBuilder, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle} = require('discord.js');
 const fs = require('node:fs');
 const path = require('node:path');
 
@@ -19,34 +21,62 @@ module.exports = {
         .setName('md')
         .setDescription('Should find all members in server'),
     async execute(interaction) {
+
+        // Permission Safety, block button if no permissions
+        const permissions = interaction.memberPermissions
+        let startButton
+        if (!permissions) { return }
+        if (!permissions.has('KickMembers')) {
+            startButton = new ActionRowBuilder()
+                .addComponents(
+                    new ButtonBuilder()
+                        .setCustomId('start')
+                        .setLabel('No Permissions')
+                        .setStyle(ButtonStyle.Danger)
+                        .setDisabled(true),
+                )
+        } else {
+            startButton = new ActionRowBuilder()
+                .addComponents(
+                    new ButtonBuilder()
+                        .setCustomId('start')
+                        .setLabel('Start Cleanup')
+                        .setStyle(ButtonStyle.Danger),
+                )
+        }
+
+        // Fetch all members
         const members = await interaction.guild.members.fetch();
 
-        const testTags = ['miracleworker#8763']
-
+        // Convert everything in the CSV to lowercase for comparison later.
         const permittedTags = permittedTagsUpper.map(el => {
             return el.toLowerCase();
         });
 
+        // Initialize Array and Populate exceptions.
         let memberTags = [];
         const exceptionTags = ['nick scalps#6134', 'patreon#1968', 'memberlist#4997'];
 
-        // Add tags to memberTags list
+        // From all members, grab the tags and add them to memberTags in lowercase for comparison.
         for (const member of members) {
             memberTags.push(member[1].user.tag.toLowerCase())
         }
 
+        // Create a list of all users that shouldn't be in the server.
         const filteredTags = memberTags.filter(el => {
             return !permittedTags.concat(exceptionTags).includes( el );
         });
 
         const filteredIds = []
 
+        // Convert the list of tags to ID's so the bot can kick them.
         for (const member of members) {
             if (filteredTags.includes(member[1].user.tag.toLowerCase())) {
                 filteredIds.push(member[0])
             }
         }
 
+        // Kicking code, loops through all of the names in X increments and sends messages with confirmations.
         let kickTotal = 0
         let failedKicks = 0
 
@@ -55,7 +85,8 @@ module.exports = {
             delta = 8
         }
         let i = 0
-        function kickAll() {
+        async function kickAll() {
+            let passFail = 'Green'
             let embedLines = []
             setTimeout( async () => {
                 for (let j = 0; j < delta; j++) {
@@ -71,16 +102,18 @@ module.exports = {
                                 embedLines.push(`:no_entry_sign: - \`${member.user.id}\` - \`${member.user.tag}\``);
                                 console.error(`Member Not Kicked: ${member.user.tag} - ${err}`);
                                 failedKicks++
+                                passFail = 'Red'
                             });
                     } else {
                         embedLines.push(`:bangbang:  - \`${filteredIds[i+j]}\``);
                         console.log(`Member Not Kicked: ${filteredIds[i+j]}`);
                         failedKicks++
+                        passFail = 'Red'
                     }
                 }
                 interaction.channel.send({
                     embeds: [new EmbedBuilder()
-                        .setColor('Green')
+                        .setColor(passFail)
                         .setTitle(`Kicked Users: ${kickTotal}/${filteredIds.length} | Failed Kicks: ${failedKicks}`)
                         .setDescription(embedLines.join('\n'))
                         .setTimestamp(),
@@ -93,16 +126,61 @@ module.exports = {
             }, 3000)
         }
 
-        kickAll();
+        // Button Handling
+        const filter = ( el ) => el.customId === 'start'
+        const collector = interaction.channel.createMessageComponentCollector({
+            filter,
+            time: 20000
+        });
 
+        collector.once('collect', async ( el ) => {
+            await el.update({
+                components: [new ActionRowBuilder()
+                    .addComponents(
+                        new ButtonBuilder()
+                            .setCustomId('start')
+                            .setLabel('Started Cleanup..')
+                            .setStyle(ButtonStyle.Danger)
+                            .setDisabled(true),
+                    )]
+            })
+            await kickAll()
+        })
 
-        // console.log(memberTags)
-        // console.log(permittedTags)
-        // console.log(filteredTags)
+        collector.once('end', async () => {
+            await interaction.editReply({
+                components: [new ActionRowBuilder()
+                    .addComponents(
+                        new ButtonBuilder()
+                            .setCustomId('start')
+                            .setLabel('Expired..')
+                            .setStyle(ButtonStyle.Danger)
+                            .setDisabled(true),
+                    )]
+            })
+        })
 
-
-        return interaction.reply({
-            content: `Members: ${memberTags.length}\nPermitted: ${permittedTags.length}\nExceptions: ${exceptionTags.length}\n\n**To be kicked**: ${filteredTags.length}`
+        await interaction.reply({
+            embeds: [new EmbedBuilder()
+                .setColor('Red')
+                .setTitle('Patreon Cleanup')
+                .setDescription(`
+                    By clicking the button you will kick up to **${filteredTags.length}** users.\n
+                    *These users either shouldn't be in the discord due to expired memberships or they have changed their discord usernames since linking to patreon.*\n
+                `)
+                .addFields(
+                    {
+                        name: 'Details',
+                        value: `
+                            Members in server: **${memberTags.length}**
+                            Patreons Linked: **${permittedTags.length}**
+                            Special Exceptions: **${exceptionTags.length}**
+                            Estimated Time: **${Math.round((3 * filteredTags.length / delta) / 60)} Minutes**
+                        `
+                    }
+                )
+            ],
+            components: [startButton]
         })
     }
 }
