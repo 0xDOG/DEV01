@@ -18,7 +18,7 @@ fs.readFile(csvPath, "utf8", (err, data) => {
 
 module.exports = {
     data: new SlashCommandBuilder()
-        .setName('md')
+        .setName('pclean')
         .setDescription('Should find all members in server'),
     async execute(interaction) {
 
