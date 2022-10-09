@@ -5,11 +5,17 @@ Before use:
 
 Commands:
 - Ping (Pong!)
-- Test (Sends user input to console)
+- PClean (Kick users that shouldnt be on the server based on a list of discord tags)
+- Info (Basic User Info)
 
-Desired Commands:
+Dev Commands:
+- Test (Can be anything.
+
 - Kick
-- Ban
-- Info
-- Stats
-- Masskick
+- Button (Button Test)
+- Prune (Purge 1-99 Messages)
+
+Interactions:
+- Ready (When bot ready)
+- InteractionCreate (When interaction is created, log to console)
+
