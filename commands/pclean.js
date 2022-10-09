@@ -19,7 +19,7 @@ fs.readFile(csvPath, "utf8", (err, data) => {
 module.exports = {
     data: new SlashCommandBuilder()
         .setName('pclean')
-        .setDescription('Should find all members in server'),
+        .setDescription('Enables you to kick all members that should not be in the server'),
     async execute(interaction) {
         // Defer Reply
         await interaction.deferReply();
@@ -83,9 +83,9 @@ module.exports = {
         let kickTotal = 0
         let failedKicks = 0
 
-        let delta = 1
-        if (filteredIds.length >= 8) {
-            delta = 8
+        let delta = 8
+        if (filteredIds.length < 8) {
+            delta = filteredIds.length
         }
         let i = 0
         async function kickAll() {
