@@ -9,6 +9,15 @@ const csvPath = path.join(filesPath, 'audit_latest.csv'); // Needs to become adj
 
 let permittedTagsUpper = []
 
+
+fs.readFile(csvPath, "utf8", (err, data) => {
+    permittedTagsUpper = data.split("\r\n").filter(element => {
+        return element !== '' && element !== 'Discord';
+    });
+});
+
+
+
 fs.readFile(csvPath, "utf8", (err, data) => {
     permittedTagsUpper = data.split("\r\n").filter(element => {
 
