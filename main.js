@@ -23,11 +23,25 @@ for (const file of commandFiles) {
     const filePath = path.join(commandsPath, file);
     const command = require(filePath);
 
-    console.log(`[Loaded] >> Command /${command.data.name}`)
+    console.log(`[Global] >> Loaded Command /${command.data.name}`)
 
     // Set a new item in the collection
     // With the key as the command name and the value as the exported module
     client.commands.set(command.data.name, command);
+}
+
+const devCommandsPath = path.join(__dirname, 'commands_dev');
+const devCommandFiles = fs.readdirSync(devCommandsPath).filter(file => file.endsWith('.js'));
+
+for (const file of devCommandFiles) {
+    const filePath = path.join(devCommandsPath, file);
+    const devCommand = require(filePath);
+
+    console.log(`[DEV] >> Loaded Command /${devCommand.data.name}`)
+
+    // Set a new item in the collection
+    // With the key as the command name and the value as the exported module
+    client.commands.set(devCommand.data.name, devCommand);
 }
 
 const eventsPath = path.join(__dirname, 'events');
@@ -37,7 +51,7 @@ for (const file of eventFiles) {
     const filePath = path.join(eventsPath, file);
     const event = require(filePath);
 
-    console.log(`[Loaded] >> Event ${event.name}`)
+    console.log(`[Global] >> Loaded Event \'${event.name}\'`)
 
     if (event.once) {
         client.once(event.name, (...args) => event.execute(...args));
