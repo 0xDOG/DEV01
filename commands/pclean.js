@@ -21,6 +21,9 @@ module.exports = {
         .setName('pclean')
         .setDescription('Should find all members in server'),
     async execute(interaction) {
+        // Defer Reply
+        await interaction.deferReply();
+
 
         // Permission Safety, block button if no permissions
         const permissions = interaction.memberPermissions
@@ -160,7 +163,7 @@ module.exports = {
             })
         })
 
-        return await interaction.deferReply({
+        await interaction.editReply({
             embeds: [new EmbedBuilder()
                 .setColor('Red')
                 .setTitle('Patreon Cleanup')
